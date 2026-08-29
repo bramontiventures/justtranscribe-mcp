@@ -1,0 +1,34 @@
+{
+  "name": "justtranscribe-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for JustTranscribe — transcribe public videos and audio into timestamped text from Claude, ChatGPT, Cursor or any MCP client.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "transcription",
+    "transcript",
+    "speech-to-text",
+    "youtube",
+    "tiktok",
+    "instagram",
+    "whisper",
+    "claude",
+    "ai"
+  ],
+  "homepage": "https://justtranscribe.ai/mcp",
+  "bugs": { "email": "hello@justtranscribe.ai" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bramontiventures/justtranscribe-mcp.git"
+  },
+  "license": "MIT",
+  "author": "Bramonti Ventures",
+  "type": "module",
+  "bin": { "justtranscribe-mcp": "index.mjs" },
+  "files": ["index.mjs", "README.md", "LICENSE"],
+  "scripts": {
+    "check": "node --check index.mjs"
+  },
+  "engines": { "node": ">=18.0.0" }
+}

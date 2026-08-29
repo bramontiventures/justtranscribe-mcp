@@ -1,0 +1,27 @@
+name: Release
+
+# Publish to npm with provenance on every version tag (v0.1.0, v0.2.0, …).
+# Needs an npm granular automation token in the repo secret NPM_TOKEN —
+# same setup as bramontiventures/n8n-nodes-justtranscribe.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write # npm provenance (Sigstore attestation via GitHub OIDC)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: npm run check
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
