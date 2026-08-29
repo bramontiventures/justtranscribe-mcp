@@ -14,7 +14,7 @@ const API_URL = (process.env.JUSTTRANSCRIBE_API_URL || "https://justtranscribe.a
 const API_KEY = process.env.JUSTTRANSCRIBE_API_KEY || "";
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
-const SERVER_INFO = { name: "justtranscribe", title: "JustTranscribe", version: "0.1.0" };
+const SERVER_INFO = { name: "justtranscribe", title: "JustTranscribe", version: "0.1.1" };
 const INSTRUCTIONS =
   "Transcribe audio and video into timestamped text. transcribe_url starts a job from a public link and returns an id; " +
   'processing takes minutes, so poll get_transcript with that id until status is "complete". ' +

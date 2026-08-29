@@ -1,6 +1,7 @@
 {
   "name": "justtranscribe-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "mcpName": "io.github.bramontiventures/justtranscribe-mcp",
   "description": "MCP server for JustTranscribe — transcribe public videos and audio into timestamped text from Claude, ChatGPT, Cursor or any MCP client.",
   "keywords": [
     "mcp",
