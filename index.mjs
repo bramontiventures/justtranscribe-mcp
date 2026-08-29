@@ -14,7 +14,7 @@ const API_URL = (process.env.JUSTTRANSCRIBE_API_URL || "https://justtranscribe.a
 const API_KEY = process.env.JUSTTRANSCRIBE_API_KEY || "";
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
-const SERVER_INFO = { name: "justtranscribe", title: "JustTranscribe", version: "0.1.1" };
+const SERVER_INFO = { name: "justtranscribe", title: "JustTranscribe", version: "0.1.2" };
 const INSTRUCTIONS =
   "Transcribe audio and video into timestamped text. transcribe_url starts a job from a public link and returns an id; " +
   'processing takes minutes, so poll get_transcript with that id until status is "complete". ' +
@@ -56,6 +56,7 @@ function processingHint(status, error) {
 const TOOLS = [
   {
     name: "transcribe_url",
+    title: "Transcribe a video or audio URL",
     description:
       'Start transcribing a public video/audio URL (YouTube, TikTok, Instagram, Facebook, Pinterest, Google Drive). Returns an id immediately; processing takes minutes — poll get_transcript with the id until status is "complete". Limits: public links only (no private/login-required videos, no live streams), up to 150 minutes.',
     inputSchema: {
@@ -85,6 +86,7 @@ const TOOLS = [
   },
   {
     name: "get_transcript",
+    title: "Get a transcript",
     description:
       "Fetch a transcript by id: status, metadata, and the plain text once complete. Set include_segments for timestamped segments, include_analysis for the AI analysis when one exists.",
     inputSchema: {
@@ -124,6 +126,7 @@ const TOOLS = [
   },
   {
     name: "list_transcripts",
+    title: "List transcripts",
     description:
       'List this account\'s transcripts, newest first. Use sort="completedAt" for finished transcripts ordered by completion.',
     inputSchema: {
@@ -148,6 +151,7 @@ const TOOLS = [
   },
   {
     name: "export_transcript",
+    title: "Export a transcript",
     description:
       "Export a completed transcript as text: txt (paragraphs), srt/vtt (subtitles), md (Markdown), csv (one row per segment). PDF/DOCX are binary — use the REST API or the web app for those.",
     inputSchema: {
@@ -179,6 +183,7 @@ const TOOLS = [
   },
   {
     name: "delete_transcript",
+    title: "Delete a transcript",
     description: "Permanently delete a transcript and its stored media. This cannot be undone.",
     inputSchema: {
       type: "object",
@@ -193,6 +198,7 @@ const TOOLS = [
   },
   {
     name: "get_account",
+    title: "Account info",
     description: "Identify the account behind the API key, with the current beta limits.",
     inputSchema: { type: "object", properties: {} },
     annotations: { readOnlyHint: true },
@@ -233,8 +239,9 @@ async function handle(msg) {
       return result(msg.id, {});
     case "tools/list":
       return result(msg.id, {
-        tools: TOOLS.map(({ name, description, inputSchema, annotations }) => ({
+        tools: TOOLS.map(({ name, title, description, inputSchema, annotations }) => ({
           name,
+          title,
           description,
           inputSchema,
           annotations,
