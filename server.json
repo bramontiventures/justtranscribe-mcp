@@ -1,7 +1,7 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.bramontiventures/justtranscribe-mcp",
-  "description": "Transcribe public videos and audio (YouTube, TikTok, Instagram and more) into accurate, timestamped text. Spanish, English and dozens of languages auto-detected.",
+  "description": "Transcribe public videos & audio (YouTube, TikTok, IG) into accurate, timestamped text via API.",
   "version": "0.1.1",
   "repository": {
     "url": "https://github.com/bramontiventures/justtranscribe-mcp",
@@ -14,7 +14,9 @@
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "justtranscribe-mcp",
       "version": "0.1.1",
-      "transport": { "type": "stdio" },
+      "transport": {
+        "type": "stdio"
+      },
       "environmentVariables": [
         {
           "name": "JUSTTRANSCRIBE_API_KEY",
