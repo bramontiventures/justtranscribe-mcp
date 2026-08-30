@@ -14,7 +14,7 @@ const API_URL = (process.env.JUSTTRANSCRIBE_API_URL || "https://justtranscribe.a
 const API_KEY = process.env.JUSTTRANSCRIBE_API_KEY || "";
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
-const SERVER_INFO = { name: "justtranscribe", title: "JustTranscribe", version: "0.1.2" };
+const SERVER_INFO = { name: "justtranscribe", title: "JustTranscribe", version: "0.1.3" };
 const INSTRUCTIONS =
   "Transcribe audio and video into timestamped text. transcribe_url starts a job from a public link and returns an id; " +
   'processing takes minutes, so poll get_transcript with that id until status is "complete". ' +
@@ -43,12 +43,35 @@ const pretty = (v) => JSON.stringify(v, null, 2);
 const errorResult = (text) => ({ content: [{ type: "text", text }], isError: true });
 const textResult = (text) => ({ content: [{ type: "text", text }], isError: false });
 
+const PROCESSING = new Set(["queued", "pending", "fetching", "transcribing", "analyzing"]);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const clampWait = (v) => Math.min(Math.max(typeof v === "number" && Number.isFinite(v) ? v : 25, 0), 55) * 1000;
+
+/**
+ * Poll server-side until the transcript finishes or waitMs elapses.
+ * Assistants do not sit and poll (ChatGPT ended its turn after 8s on
+ * 2026-08-29), so a bounded wait turns "poll me later" into "await me".
+ */
+async function awaitTranscript(id, waitMs) {
+  const deadline = Date.now() + waitMs;
+  for (;;) {
+    const r = await apiJson(`/transcripts/${encodeURIComponent(id)}`);
+    if (r.error) return r;
+    if (!PROCESSING.has(r.json.status) || Date.now() >= deadline) return r;
+    await sleep(2500);
+  }
+}
+
 function processingHint(status, error) {
   if (status === "complete") return "";
   if (status === "failed") return `\n\nThis transcript FAILED: ${error ?? "unknown error"}.`;
   if (status === "queued")
-    return "\n\nQueued behind the daily capacity window — calling get_transcript again resumes it automatically once the window reopens.";
-  return "\n\nStill processing — transcription takes minutes (roughly half the recording's length). Call get_transcript again in 30–60 seconds.";
+    return "\n\nQueued behind the daily capacity window — call get_transcript again to resume it automatically once the window reopens.";
+  return (
+    "\n\nSTILL PROCESSING. Do not end your turn and do not ask the user to wait: " +
+    "call get_transcript again with this id right now — that call waits for the " +
+    "result and returns it as soon as it is ready. Long recordings may need a few such calls."
+  );
 }
 
 // --- tools ------------------------------------------------------------------
@@ -58,12 +81,13 @@ const TOOLS = [
     name: "transcribe_url",
     title: "Transcribe a video or audio URL",
     description:
-      'Start transcribing a public video/audio URL (YouTube, TikTok, Instagram, Facebook, Pinterest, Google Drive). Returns an id immediately; processing takes minutes — poll get_transcript with the id until status is "complete". Limits: public links only (no private/login-required videos, no live streams), up to 150 minutes.',
+      'Transcribe a public video/audio URL (YouTube, TikTok, Instagram, Facebook, Pinterest, Google Drive). Waits up to ~25s so short videos come back in one call; if still processing, call get_transcript with the returned id (that call waits too) until status is "complete". Limits: public links only (no private/login-required videos, no live streams), up to 150 minutes.',
     inputSchema: {
       type: "object",
       properties: {
         url: { type: "string", description: "Public video or audio URL to transcribe." },
         webhook_url: { type: "string", description: "Optional HTTPS URL to POST the result to on completion." },
+        wait_seconds: { type: "integer", description: "How long to wait for the result before returning (0-55, default 25)." },
       },
       required: ["url"],
     },
@@ -76,11 +100,18 @@ const TOOLS = [
         body: JSON.stringify({ url: args.url, webhookUrl: args.webhook_url }),
       });
       if (r.error) return errorResult(r.error);
+      if (r.json.queued) {
+        return textResult(
+          pretty(r.json) +
+            "\n\nQueued behind the daily capacity window; it starts automatically when the window reopens. Call get_transcript with this id.",
+        );
+      }
+      const w = await awaitTranscript(r.json.id, clampWait(args.wait_seconds));
+      if (w.error) return errorResult(w.error);
+      const f = w.json;
       return textResult(
-        pretty(r.json) +
-          (r.json.queued
-            ? "\n\nQueued behind the daily capacity window; it starts automatically when the window reopens. Poll get_transcript with this id."
-            : '\n\nProcessing started. Poll get_transcript with this id until status is "complete" (typically 1–5 minutes).'),
+        pretty({ id: f.id, status: f.status, title: f.title, language: f.language, durationSec: f.durationSec, text: f.text }) +
+          processingHint(f.status, f.error),
       );
     },
   },
@@ -88,20 +119,21 @@ const TOOLS = [
     name: "get_transcript",
     title: "Get a transcript",
     description:
-      "Fetch a transcript by id: status, metadata, and the plain text once complete. Set include_segments for timestamped segments, include_analysis for the AI analysis when one exists.",
+      "Fetch a transcript by id, waiting up to ~25s if it is still processing: status, metadata, and the plain text once complete. Set include_segments for timestamped segments, include_analysis for the AI analysis when one exists.",
     inputSchema: {
       type: "object",
       properties: {
         id: { type: "string", description: "Transcript id from transcribe_url or list_transcripts." },
         include_segments: { type: "boolean", description: "Include timestamped segments. Default false." },
         include_analysis: { type: "boolean", description: "Include the AI analysis and pace metrics. Default false." },
+        wait_seconds: { type: "integer", description: "If still processing, wait up to this many seconds (0-55, default 25)." },
       },
       required: ["id"],
     },
     annotations: { readOnlyHint: true },
     run: async (args) => {
       if (typeof args.id !== "string" || !args.id) return errorResult("`id` is required.");
-      const r = await apiJson(`/transcripts/${encodeURIComponent(args.id)}`);
+      const r = await awaitTranscript(args.id, clampWait(args.wait_seconds));
       if (r.error) return errorResult(r.error);
       const f = r.json;
       const out = {
