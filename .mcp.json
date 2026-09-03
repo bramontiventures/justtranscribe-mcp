@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "justtranscribe": {
+      "type": "http",
+      "url": "https://justtranscribe.ai/api/mcp"
+    }
+  }
+}

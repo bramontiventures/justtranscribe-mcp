@@ -40,6 +40,27 @@ claude mcp add --transport http justtranscribe https://justtranscribe.ai/api/mcp
   --header "Authorization: Bearer jt_live_..."
 ```
 
+
+## Claude Code plugin
+
+This repo is also a Claude Code plugin. Installing it wires up the hosted
+MCP server (OAuth sign-in, no key to paste) and adds a `transcribe` skill
+that knows the limits and the export formats.
+
+```
+/plugin marketplace add anthropics/claude-plugins-community
+/plugin install justtranscribe@claude-community
+```
+
+Then run `/mcp`, pick **justtranscribe** and sign in once. After that:
+
+```
+/justtranscribe:transcribe https://www.youtube.com/watch?v=jNQXAC9IVRw
+```
+
+To try it before it is listed, clone this repo and run
+`claude --plugin-dir ./justtranscribe-mcp`.
+
 ## Tools
 
 - `transcribe_url` — start transcribing a public video/audio link (YouTube,

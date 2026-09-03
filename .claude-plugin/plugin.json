@@ -1,0 +1,10 @@
+{
+  "name": "justtranscribe",
+  "description": "Transcribe public videos and audio (YouTube, TikTok, Instagram, Facebook, Pinterest, Google Drive) into accurate, timestamped text — then summarize, translate or export SRT/VTT subtitles without leaving Claude Code.",
+  "version": "0.1.0",
+  "author": { "name": "Bramonti Ventures", "url": "https://justtranscribe.ai" },
+  "homepage": "https://justtranscribe.ai/mcp",
+  "repository": "https://github.com/bramontiventures/justtranscribe-mcp",
+  "license": "MIT",
+  "keywords": ["transcription", "speech-to-text", "subtitles", "video", "audio", "youtube", "tiktok", "spanish"]
+}

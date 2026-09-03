@@ -14,7 +14,7 @@ const API_URL = (process.env.JUSTTRANSCRIBE_API_URL || "https://justtranscribe.a
 const API_KEY = process.env.JUSTTRANSCRIBE_API_KEY || "";
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
-const SERVER_INFO = { name: "justtranscribe", title: "JustTranscribe", version: "0.1.3" };
+const SERVER_INFO = { name: "justtranscribe", title: "JustTranscribe", version: "0.1.4" };
 const INSTRUCTIONS =
   "Transcribe audio and video into timestamped text. transcribe_url starts a job from a public link and returns an id; " +
   'processing takes minutes, so poll get_transcript with that id until status is "complete". ' +
@@ -91,7 +91,7 @@ const TOOLS = [
       },
       required: ["url"],
     },
-    annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     run: async (args) => {
       if (typeof args.url !== "string" || !args.url) return errorResult("`url` is required.");
       const r = await apiJson("/transcripts", {
@@ -130,7 +130,7 @@ const TOOLS = [
       },
       required: ["id"],
     },
-    annotations: { readOnlyHint: true },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     run: async (args) => {
       if (typeof args.id !== "string" || !args.id) return errorResult("`id` is required.");
       const r = await awaitTranscript(args.id, clampWait(args.wait_seconds));
@@ -172,7 +172,7 @@ const TOOLS = [
         sort: { type: "string", enum: ["createdAt", "completedAt"] },
       },
     },
-    annotations: { readOnlyHint: true },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     run: async (args) => {
       const q = new URLSearchParams({ limit: String(args.limit ?? 10) });
       if (args.status) q.set("status", String(args.status));
@@ -196,7 +196,7 @@ const TOOLS = [
       },
       required: ["id", "format"],
     },
-    annotations: { readOnlyHint: true },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     run: async (args) => {
       const formats = ["txt", "srt", "vtt", "md", "csv"];
       if (!formats.includes(args.format)) return errorResult(`format must be one of: ${formats.join(", ")}.`);
@@ -222,7 +222,7 @@ const TOOLS = [
       properties: { id: { type: "string" } },
       required: ["id"],
     },
-    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true },
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
     run: async (args) => {
       const r = await apiJson(`/transcripts/${encodeURIComponent(String(args.id))}`, { method: "DELETE" });
       return r.error ? errorResult(r.error) : textResult(pretty(r.json));
@@ -233,7 +233,7 @@ const TOOLS = [
     title: "Account info",
     description: "Identify the account behind the API key, with the current beta limits.",
     inputSchema: { type: "object", properties: {} },
-    annotations: { readOnlyHint: true },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     run: async () => {
       const r = await apiJson("/me");
       return r.error ? errorResult(r.error) : textResult(pretty(r.json));
