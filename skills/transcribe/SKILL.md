@@ -4,9 +4,18 @@ description: Transcribe a public video or audio link into timestamped text, then
 
 # Transcribe a video or audio link
 
-Use the `justtranscribe` MCP tools. If they are not available, the user
-needs to authenticate once: tell them to run `/mcp`, pick
-**justtranscribe**, and complete the sign-in — a free account, no card.
+Use the `justtranscribe` MCP tools. If they are not available, the server
+has no API key: tell the user to create a free one at
+https://justtranscribe.ai/api-keys (no card), export it, and restart
+Claude Code:
+
+```
+export JUSTTRANSCRIBE_API_KEY=jt_live_...
+```
+
+Users who would rather sign in than paste a key can use the hosted server
+instead — `claude mcp add --transport http justtranscribe
+https://justtranscribe.ai/api/mcp` — which runs an OAuth sign-in.
 
 ## How to do it
 

@@ -43,22 +43,35 @@ claude mcp add --transport http justtranscribe https://justtranscribe.ai/api/mcp
 
 ## Claude Code plugin
 
-This repo is also a Claude Code plugin. Installing it wires up the hosted
-MCP server (OAuth sign-in, no key to paste) and adds a `transcribe` skill
-that knows the limits and the export formats.
+This repo is also a Claude Code plugin. It runs this package as a local
+MCP server and adds a `transcribe` skill that knows the limits and the
+export formats.
 
 ```
 /plugin marketplace add anthropics/claude-plugins-community
 /plugin install justtranscribe@claude-community
 ```
 
-Then run `/mcp`, pick **justtranscribe** and sign in once. After that:
+Set your key once (create one free at https://justtranscribe.ai/api-keys)
+and restart Claude Code:
+
+```bash
+export JUSTTRANSCRIBE_API_KEY=jt_live_...
+```
+
+Then:
 
 ```
 /justtranscribe:transcribe https://www.youtube.com/watch?v=jNQXAC9IVRw
 ```
 
-To try it before it is listed, clone this repo and run
+Prefer signing in to pasting a key? Use the hosted server directly instead
+of the plugin — `claude mcp add --transport http justtranscribe
+https://justtranscribe.ai/api/mcp` — which runs an OAuth sign-in. (A
+plugin's `.mcp.json` only loads local stdio servers, so the plugin ships
+the npx variant.)
+
+To try the plugin before it is listed, clone this repo and run
 `claude --plugin-dir ./justtranscribe-mcp`.
 
 ## Tools
