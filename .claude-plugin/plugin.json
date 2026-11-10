@@ -1,10 +1,32 @@
 {
   "name": "justtranscribe",
-  "description": "Transcribe public videos and audio (YouTube, TikTok, Instagram, Facebook, Pinterest, Google Drive) into accurate, timestamped text — then summarize, translate or export SRT/VTT subtitles without leaving Claude Code.",
-  "version": "0.1.0",
-  "author": { "name": "Bramonti Ventures", "url": "https://justtranscribe.ai" },
+  "description": "Transcribe public videos and audio (YouTube, TikTok, Instagram, Facebook, Pinterest, Google Drive) into accurate, timestamped text \u2014 then summarize, translate or export SRT/VTT subtitles without leaving Claude Code.",
+  "version": "0.1.5",
+  "author": {
+    "name": "Bramonti Ventures",
+    "url": "https://justtranscribe.ai"
+  },
   "homepage": "https://justtranscribe.ai/mcp",
   "repository": "https://github.com/bramontiventures/justtranscribe-mcp",
   "license": "MIT",
-  "keywords": ["transcription", "speech-to-text", "subtitles", "video", "audio", "youtube", "tiktok", "spanish"]
+  "keywords": [
+    "transcription",
+    "speech-to-text",
+    "subtitles",
+    "video",
+    "audio",
+    "youtube",
+    "tiktok",
+    "spanish"
+  ],
+  "icon": "./assets/icon.png",
+  "userConfig": {
+    "api_key": {
+      "type": "string",
+      "title": "JustTranscribe API key",
+      "description": "Create one at https://justtranscribe.ai/api-keys (starts with jt_live_).",
+      "sensitive": true,
+      "required": true
+    }
+  }
 }

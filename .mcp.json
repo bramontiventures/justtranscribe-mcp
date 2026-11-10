@@ -2,7 +2,13 @@
   "mcpServers": {
     "justtranscribe": {
       "command": "npx",
-      "args": ["-y", "justtranscribe-mcp"]
+      "args": [
+        "-y",
+        "justtranscribe-mcp@0.1.3"
+      ],
+      "env": {
+        "JUSTTRANSCRIBE_API_KEY": "${user_config.api_key}"
+      }
     }
   }
 }

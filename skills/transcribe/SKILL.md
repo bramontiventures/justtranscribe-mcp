@@ -6,12 +6,10 @@ description: Transcribe a public video or audio link into timestamped text, then
 
 Use the `justtranscribe` MCP tools. If they are not available, the server
 has no API key: tell the user to create a free one at
-https://justtranscribe.ai/api-keys (no card), export it, and restart
-Claude Code:
+https://justtranscribe.ai/api-keys (no card) and enter it when Claude Code
+asks for the plugin's "JustTranscribe API key" (or re-enable the plugin to
+be asked again).
 
-```
-export JUSTTRANSCRIBE_API_KEY=jt_live_...
-```
 
 Users who would rather sign in than paste a key can use the hosted server
 instead — `claude mcp add --transport http justtranscribe
